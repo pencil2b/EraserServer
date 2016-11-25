@@ -7,8 +7,8 @@ public class Bullet {
     private byte status=0;
     public final float[] velocity;
     
-    public Bullet(int MAXSIZE){
-        BulletInit init = new BulletInit(MAXSIZE);
+    public Bullet(int MAX_WIDTH_SIZE, int MAX_HEIGHT_SIZE){
+        BulletInit init = new BulletInit(MAX_WIDTH_SIZE,MAX_HEIGHT_SIZE);
         velocity = init.getVelocity();
         float temp[] = init.getStart();
         this.x = temp[0];

@@ -1,6 +1,4 @@
 
-import java.util.Random;
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -12,22 +10,12 @@ import java.util.Random;
  * @author Neptune
  */
 public class NewClass {
-    
-    static Random rand;
-    static int MAX_SIZE=100;
-    private static final float start[][] = {{0,0},{0,MAX_SIZE},{MAX_SIZE,0},{MAX_SIZE,MAX_SIZE}};
-    private static float init[];
-    
-    
     public static void main(String[] args) {
-        rand = new Random();
-        init = new float[2];
-        init = start[1];
-        while(true){
-            int x = rand.nextInt(4);
-            System.out.println(x);
-            if(x==0)
-                break;
-        }
+        Object obj[] = {10,"FUCK"};
+        Object obj2[] = {11,"FECK"};
+      //  Object obj3[] = {12,"FACK"};
+        if((Integer)obj[0]<(Integer)obj2[0])System.out.println(obj2[1]);
+        System.out.println(obj[0]);
+        System.out.println(obj[1]);
     }
 }

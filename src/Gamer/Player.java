@@ -4,26 +4,19 @@ public class Player {
     
     private final int SPEED=20;
     private final int id; 
+    private final String name;
     public float x; 
     public float y; 
-    private short age = 0;
+    public int age = 0;
     private byte status = 0;
     private final UDPSocket udp;
     
-    public Player(int id, String ip, int port, float x, float y){
+    public Player(int id,String name, String ip, int port, float x, float y){
         this.id =  id;
+        this.name = name;
         this.x = x;
         this.y = y;
-        this.status = status;
         udp = new UDPSocket(ip,port);
-        
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {}
-            age += 1;
-        }).start();
-        
     }
 
     public void set(float x, float y){
@@ -43,8 +36,11 @@ public class Player {
         return y;
     }
 
+    public String getName(){
+        return name;
+    }
 
-    public short getAge() {
+    public int getAge() {
         return age;
     }
 
@@ -60,5 +56,5 @@ public class Player {
     public void sendWorld(byte [] data){
         udp.write(data);
     }
-    
+
 }
