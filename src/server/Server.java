@@ -58,46 +58,49 @@ public class Server {
         ServerSocket serverSock = new ServerSocket(PORT);
         while (true) {
             Socket cSocket = serverSock.accept();
-            User user = new User(count, cSocket,MAX_WIDTH,MAX_HEIGHT);
+            User user = new User(count, cSocket, MAX_WIDTH, MAX_HEIGHT);
             userList.put(count++, user);
             new Thread(user).start();
             broadcastRank();
         }
 
     }
-    
-    public boolean conflict(float px, float py, float bx, float by,int age){
-        double x = Math.sqrt((px-bx)*(px-bx)+(py-by)*(py-by));
-        double radius = 10 + age/3;
+
+    public boolean conflict(float px, float py, float bx, float by, int age) {
+        double x = Math.sqrt((px - bx) * (px - bx) + (py - by) * (py - by));
+        double radius = 10 + age / 3;
         return x < radius;
     }
-    
-    
-    public void deadAnnouncment(int id){
+
+    public void deadAnnouncment(int id) {
         Player pp = playerList.get(id);
         User user = userList.get(id);
         user.deadAction();
-        pp.setStatus((byte)2);
+        pp.setStatus((byte) 2);
         broadcastRank();
-        
+
     }
-    
-    
-    public void logic(){
-        for(Integer x:playerList.keySet()){
-            if(playerList.containsKey(x)){
+
+    public void logic() {
+        for (Integer x : playerList.keySet()) {
+            if (playerList.containsKey(x)) {
                 Player pp = playerList.get(x);
-                if(pp.getStatus()==1){
+                if (pp.getStatus() == 1) {
                     int age = pp.getAge();
                     float px = pp.getX();
                     float py = pp.getY();
                     int bulletCount = bulletList.size();
-                    for(int i=0;i<bulletCount;i++){
+                    for (int i = 0; i < bulletCount; i++) {
                         Bullet bb = bulletList.get(i);
-                        if(conflict(px, py, bb.getX(), bb.getY(), age)){
+                        if (conflict(px, py, bb.getX(), bb.getY(), age)) {
                             deadAnnouncment(pp.getID());
                             break;
-                            }}}}}}
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     public void deal(byte[] data) throws IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(data);
@@ -105,30 +108,29 @@ public class Server {
         int id = dis.readShort();
         float x = dis.readFloat();
         float y = dis.readFloat();
-        
-         if (!playerList.isEmpty() && playerList.containsKey(id)) {
+
+        if (!playerList.isEmpty() && playerList.containsKey(id)) {
             Player pp = playerList.get(id);
             byte status = pp.getStatus();
-            if(status==0||status==1){
-                if((pp.x+x*PLAYERSPEED)<MAX_WIDTH && (pp.x+x*PLAYERSPEED)>0)
+            if (status == 0 || status == 1) {
+                if ((pp.x + x * PLAYERSPEED) < MAX_WIDTH && (pp.x + x * PLAYERSPEED) > 0) {
                     pp.x += x * PLAYERSPEED;
-                else if ( (pp.x+x*PLAYERSPEED) >= MAX_WIDTH ){
+                } else if ((pp.x + x * PLAYERSPEED) >= MAX_WIDTH) {
                     pp.x = MAX_WIDTH;
-                }else if ( (pp.x+x*PLAYERSPEED) <= 0){
+                } else if ((pp.x + x * PLAYERSPEED) <= 0) {
                     pp.x = 0;
                 }
 
-                if((pp.y + y*PLAYERSPEED)<MAX_HEIGHT && (pp.y+y*PLAYERSPEED)>0)
+                if ((pp.y + y * PLAYERSPEED) < MAX_HEIGHT && (pp.y + y * PLAYERSPEED) > 0) {
                     pp.y += y * PLAYERSPEED;
-                else if ( (pp.y+y*PLAYERSPEED) >= MAX_HEIGHT ){
+                } else if ((pp.y + y * PLAYERSPEED) >= MAX_HEIGHT) {
                     pp.y = MAX_HEIGHT;
-                }else if ( (pp.y+y*PLAYERSPEED) <= 0){
+                } else if ((pp.y + y * PLAYERSPEED) <= 0) {
                     pp.y = 0;
                 }
             }
         }
-        
-        
+
         logic();
     }
 
@@ -140,8 +142,8 @@ public class Server {
             });
         }
     }
-    
-    public static void broadcastRank(){
+
+    public static void broadcastRank() {
         userList.keySet().stream().forEach((x) -> {
             userList.get(x).updateOnlinePlayer();
         });
@@ -150,16 +152,16 @@ public class Server {
     public byte[] createEverything() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
-        
+
         int playerCount = playerList.keySet().size();
         int bulletCount = bulletList.size();
-        
+
         dos.writeShort(playerCount);
         dos.writeShort(bulletCount);
-        
+
         if (playerCount > 0) {
             for (Integer x : playerList.keySet()) {
-                if(playerList.containsKey(x)){
+                if (playerList.containsKey(x)) {
                     Player pp = playerList.get(x);
                     dos.writeShort(pp.getID());
                     dos.writeFloat(pp.getX());
@@ -180,8 +182,7 @@ public class Server {
         }
         return baos.toByteArray();
     }
-    
-    
+
     // 製作各種執行緒
     public void implementsRunnable() {
 
@@ -243,23 +244,25 @@ public class Server {
                 }
             }
         };
-        
+
         playerGrowRunnable = new Runnable() {
             @Override
             public void run() {
                 FPS fps = new FPS();
-                while(true) {
+                while (true) {
                     fps.adjust(1);
                     Server.playerList.forEach((Integer id, Player player) -> {
-                        player.age += 1;
-                        if(player.age>=INVINCIBLE_TIME && player.getStatus() ==0 )
-                            player.setStatus((byte)1);
+                        if (player.getStatus() < 2) {
+                            player.age += 1;
+                        }
+                        if (player.age >= INVINCIBLE_TIME && player.getStatus() == 0) {
+                            player.setStatus((byte) 1);
+                        }
                     });
                 }
             }
         };
-        
-    }
-    
-}
 
+    }
+
+}

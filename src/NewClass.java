@@ -1,4 +1,7 @@
 
+import java.util.HashMap;
+
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -11,11 +14,17 @@
  */
 public class NewClass {
     public static void main(String[] args) {
-        Object obj[] = {10,"FUCK"};
-        Object obj2[] = {11,"FECK"};
-      //  Object obj3[] = {12,"FACK"};
-        if((Integer)obj[0]<(Integer)obj2[0])System.out.println(obj2[1]);
-        System.out.println(obj[0]);
-        System.out.println(obj[1]);
+        try {
+            
+        
+            String x = "Fuck";
+            switch(x){
+                case "YOOO":break;
+                case "QOQWE" :break;
+                case "Fuck": throw new Exception();
+            }
+        }catch (Exception e) {
+            System.out.println("XDDDD");
+        }
     }
 }

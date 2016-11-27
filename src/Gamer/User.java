@@ -91,7 +91,7 @@ public final class User implements Runnable {
         
         for(int i=0; i<rlist.size(); i++){
             for(int j=0; j<rlist.size(); j++){
-                if(rlist.get(j)[1]>=rlist.get(i)[1]){
+                if(rlist.get(j)[1]<rlist.get(i)[1]){
                     Integer temp[] = rlist.get(i);
                     rlist.set(i,rlist.get(j));
                     rlist.set(j,temp);
@@ -159,20 +159,22 @@ public final class User implements Runnable {
                         Server.broadcastRank();
                         break;
                     case "exit" : 
-                        // quit (disconnect)
-                        //Server.playerList.get(id).status = 0;
-                        Object x[] = {age,name};
-                        Server.recordList.add(x);
-                        
-                        Server.playerList.remove(id);
-                        
-                        reader.close();
-                        this.sock.close();
                         throw new Exception();
                 }
 
             }
         } catch (Exception ex) {
+            Server.playerList.get(id).setStatus((byte)2);
+            Object x[] = {age,name};
+            Server.recordList.add(x);
+            Server.playerList.remove(id);
+            Server.userList.remove(id);
+            try {
+                writer.close();
+                reader.close();
+                sock.close();
+            } catch (IOException ex1) {
+            }
             Server.broadcastRank();
             System.out.println( "ID: "+ id + " Name: "+name+" Disconnect.");
         }
