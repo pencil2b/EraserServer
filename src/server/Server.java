@@ -28,6 +28,7 @@ public class Server {
 
     private final int PORT = 20000;
     private int count = 1;
+    private int BULLET_OFFSET = 10;
     private byte INVINCIBLE_TIME = 5;
     private final int MAX_WIDTH = 3600;
     private final int MAX_HEIGHT = 3600;
@@ -232,7 +233,7 @@ public class Server {
                     int bulletSize = bulletList.size();
                     for (int i = 0; i < bulletSize; i++) {
                         Bullet b = bulletList.get(i);
-                        if (b.x < MAX_WIDTH && b.x >= -1 && b.y < MAX_HEIGHT && b.y >= -1) {
+                        if (b.x <= MAX_WIDTH + BULLET_OFFSET  && b.x >= -BULLET_OFFSET && b.y <= MAX_HEIGHT +BULLET_OFFSET && b.y >= -BULLET_OFFSET) {
                             b.x += b.velocity[0];
                             b.y += b.velocity[1];
                         } else {
