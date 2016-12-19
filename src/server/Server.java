@@ -26,14 +26,14 @@ public class Server {
     private Runnable moveBulletRunnable;
     private Runnable playerGrowRunnable;
 
-    private final int PORT = 20000;
     private int count = 1;
-    private int BULLET_OFFSET = 10;
-    private byte INVINCIBLE_TIME = 5;
+    private final int PORT = 20000;
     private final int MAX_WIDTH = 3600;
     private final int MAX_HEIGHT = 3600;
     private final int PLAYERSPEED = 10;
+    private final byte INVINCIBLE_TIME = 5;
     private final int MAX_AMOUNT_BULLET = 200;
+    private final int BULLET_RADIUS = 5;
 
     UDPSocket udp;
 
@@ -67,21 +67,23 @@ public class Server {
 
     }
 
+    // Judge whether this player bump into a bullet or not.
     public boolean conflict(float px, float py, float bx, float by, int age) {
         double x = Math.sqrt((px - bx) * (px - bx) + (py - by) * (py - by));
-        double radius = 10 + age / 3;
-        return x < radius;
+        double player_radius = 10 + age / 3;
+        return x < player_radius+BULLET_RADIUS;
     }
 
+    // Announcent Player die.
     public void deadAnnouncment(int id) {
         Player pp = playerList.get(id);
         User user = userList.get(id);
         user.deadAction();
         pp.setStatus((byte) 2);
         broadcastRank();
-
     }
 
+    // Judge all players alive or not.
     public void logic() {
         for (Integer x : playerList.keySet()) {
             if (playerList.containsKey(x)) {
@@ -103,6 +105,7 @@ public class Server {
         }
     }
 
+    // How to deal with input udp data ?
     public void deal(byte[] data) throws IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(data);
         DataInputStream dis = new DataInputStream(bais);
@@ -131,10 +134,10 @@ public class Server {
                 }
             }
         }
-
         logic();
     }
 
+    // Broadcast all Player's .
     public void broadcast() throws IOException {
         byte[] buffer = createEverything();
         if (!playerList.isEmpty()) {
@@ -144,12 +147,14 @@ public class Server {
         }
     }
 
+    // Broadcast Rank to all Player.
     public static void broadcastRank() {
         userList.keySet().stream().forEach((x) -> {
             userList.get(x).updateOnlinePlayer();
         });
     }
 
+    // Create the World, give udp, broadcast to all player.
     public byte[] createEverything() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
@@ -184,7 +189,7 @@ public class Server {
         return baos.toByteArray();
     }
 
-    // 製作各種執行緒
+    // Thread Maker A_A
     public void implementsRunnable() {
 
         broadcastRunnable = new Runnable() {
@@ -233,7 +238,7 @@ public class Server {
                     int bulletSize = bulletList.size();
                     for (int i = 0; i < bulletSize; i++) {
                         Bullet b = bulletList.get(i);
-                        if (b.x <= MAX_WIDTH + BULLET_OFFSET  && b.x >= -BULLET_OFFSET && b.y <= MAX_HEIGHT +BULLET_OFFSET && b.y >= -BULLET_OFFSET) {
+                        if (b.x <= MAX_WIDTH + BULLET_RADIUS  && b.x >= -BULLET_RADIUS && b.y <= MAX_HEIGHT +BULLET_RADIUS && b.y >= -BULLET_RADIUS) {
                             b.x += b.velocity[0];
                             b.y += b.velocity[1];
                         } else {

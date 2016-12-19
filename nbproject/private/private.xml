@@ -2,13 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/Users/Neptune/NetBeansProjects/Server/src/server/Server.java</file>
-            <file>file:/Users/Neptune/NetBeansProjects/Server/src/Gamer/Player.java</file>
-            <file>file:/Users/Neptune/NetBeansProjects/Server/src/Gamer/User.java</file>
-            <file>file:/Users/Neptune/NetBeansProjects/Server/src/NewClass.java</file>
-            <file>file:/Users/Neptune/NetBeansProjects/Server/src/Gamer/BulletInit.java</file>
-            <file>file:/Users/Neptune/NetBeansProjects/Server/src/Gamer/UDPSocket.java</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

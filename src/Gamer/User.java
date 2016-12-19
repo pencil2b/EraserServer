@@ -12,12 +12,13 @@ import server.Server;
 
 public final class User implements Runnable {
 
-    private int OFFSET = 10;
-    int id;
-    int port;
+    private int PLAYER_INITIAL_UPOFFSET = 10;
+    private int PLAYER_INITIAL_LEFTOFFSET = 10;
+    private int PLAYER_INITIAL_WIDTH;
+    private int PLAYER_INITIAL_HEIGHT;
+    private int id;
+    private int port;
     int age;
-    int MaxWidth;
-    int MaxHeight;
     String ip;
     String name;
     Player player;
@@ -27,8 +28,8 @@ public final class User implements Runnable {
     
 
     public User(int id, Socket cSocket, int MaxWidth, int MaxHeight) {
-        this.MaxWidth = MaxWidth;
-        this.MaxHeight = MaxHeight;
+        this.PLAYER_INITIAL_WIDTH = MaxWidth - 2*PLAYER_INITIAL_UPOFFSET;
+        this.PLAYER_INITIAL_HEIGHT = MaxHeight - 2*PLAYER_INITIAL_LEFTOFFSET;
         this.sock = cSocket;
         this.id = id;
 
@@ -61,9 +62,8 @@ public final class User implements Runnable {
         Date now = new Date();
         System.out.println(now.toString() + "\nIP : " + ip + "\nName : " + name + "\nStart to Connect.\n");
         
-        player = new Player(id,name, ip, port, MaxWidth * (new Random().nextFloat()) + OFFSET, MaxHeight * (new Random().nextFloat()) + OFFSET);
-        Server.playerList.put(id, player);
-        
+        player = new Player(id,name, ip, port, PLAYER_INITIAL_WIDTH * (new Random().nextFloat()) + PLAYER_INITIAL_LEFTOFFSET, PLAYER_INITIAL_HEIGHT * (new Random().nextFloat()) + PLAYER_INITIAL_UPOFFSET);
+        Server.playerList.put(id, player);   
     }
     
     
@@ -125,7 +125,7 @@ public final class User implements Runnable {
         
         for(int i=0; i<recordCount; i++){
             for(int j=0; j<recordCount; j++){
-                if((Integer)rlist.get(j)[2]>=(Integer)rlist.get(i)[2]){
+                if((Integer)rlist.get(j)[2]<(Integer)rlist.get(i)[2]){
                     Object temp[] = rlist.get(i);
                     rlist.set(i,rlist.get(j));
                     rlist.set(j,temp);
@@ -154,7 +154,7 @@ public final class User implements Runnable {
                         break;
                     case "restart" :
                         // send rank
-                        this.player = new Player(id,name, ip, port, MaxWidth * (new Random().nextFloat()) + OFFSET, MaxHeight * (new Random().nextFloat()) + OFFSET);
+                        this.player = new Player(id,name, ip, port, PLAYER_INITIAL_WIDTH * (new Random().nextFloat()) + PLAYER_INITIAL_LEFTOFFSET, PLAYER_INITIAL_HEIGHT * (new Random().nextFloat()) + PLAYER_INITIAL_UPOFFSET);
                         Server.playerList.put(id, player);
                         Server.broadcastRank();
                         break;
