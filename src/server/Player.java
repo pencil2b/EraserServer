@@ -1,12 +1,19 @@
-package Gamer;
+package server;
+
+import CDC.Bullet;
+import CDC.UDPSocket;
+import java.util.ArrayList;
 
 public class Player {
     
+    public static ArrayList<Bullet> rangeBullet;
     private final int SPEED=20;
     private final int id; 
     private final String name;
     public float x; 
     public float y; 
+    public float xv = 0; 
+    public float yv = 0; 
     public int age = 0;
     private byte status = 0;
     private final UDPSocket udp;
@@ -44,10 +51,35 @@ public class Player {
         return age;
     }
 
+    public void setXV(float xv){
+        this.xv = xv;
+    }
+    public void setYV(float yv){
+        this.yv = yv;
+    }
+    
+    public float getXV(){
+        return this.xv;
+    }
+    public float getYV(){
+        return this.yv;
+    }
 
     public byte getStatus() {
         return status;
     }
+    
+    public static synchronized void  clearBullet(){
+        rangeBullet = new ArrayList<>();
+    }
+
+    public  void setRangeBullet(ArrayList<Bullet> rangeBullet) {
+        Player.rangeBullet = rangeBullet;
+    }
+
+    
+    
+    
     
     public void setStatus(byte status){
         this.status = status;
@@ -56,5 +88,7 @@ public class Player {
     public void sendWorld(byte [] data){
         udp.write(data);
     }
+    
+    
 
 }

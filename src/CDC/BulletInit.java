@@ -1,4 +1,4 @@
-package Gamer;
+package CDC;
 
 import static java.lang.Math.abs;
 import java.util.Random;
@@ -8,8 +8,8 @@ public class BulletInit {
     private final Random rand;
     private final int MAX_WIDTH ;
     private final int MAX_HEIGHT ;
-    private final float SPEED_MAX = (float) 5.0;
-    private final float SPEED_LEAST = (float) 1.0;
+    private final float SPEED_MAX = (float) 5.0/3;
+    private final float SPEED_LEAST = (float) 1.0/3;
     private float velocity[];
     private float init[];
     

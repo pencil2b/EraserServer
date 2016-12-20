@@ -1,5 +1,6 @@
-package Gamer;
+package server;
 
+import server.Player;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,13 +13,12 @@ import server.Server;
 
 public final class User implements Runnable {
 
-    private int PLAYER_INITIAL_UPOFFSET = 10;
-    private int PLAYER_INITIAL_LEFTOFFSET = 10;
-    private int PLAYER_INITIAL_WIDTH;
-    private int PLAYER_INITIAL_HEIGHT;
-    private int id;
-    private int port;
+    private int OFFSET = 10;
+    int id;
+    int port;
     int age;
+    int MaxWidth;
+    int MaxHeight;
     String ip;
     String name;
     Player player;
@@ -28,8 +28,8 @@ public final class User implements Runnable {
     
 
     public User(int id, Socket cSocket, int MaxWidth, int MaxHeight) {
-        this.PLAYER_INITIAL_WIDTH = MaxWidth - 2*PLAYER_INITIAL_UPOFFSET;
-        this.PLAYER_INITIAL_HEIGHT = MaxHeight - 2*PLAYER_INITIAL_LEFTOFFSET;
+        this.MaxWidth = MaxWidth;
+        this.MaxHeight = MaxHeight;
         this.sock = cSocket;
         this.id = id;
 
@@ -62,22 +62,23 @@ public final class User implements Runnable {
         Date now = new Date();
         System.out.println(now.toString() + "\nIP : " + ip + "\nName : " + name + "\nStart to Connect.\n");
         
-        player = new Player(id,name, ip, port, PLAYER_INITIAL_WIDTH * (new Random().nextFloat()) + PLAYER_INITIAL_LEFTOFFSET, PLAYER_INITIAL_HEIGHT * (new Random().nextFloat()) + PLAYER_INITIAL_UPOFFSET);
-        Server.playerList.put(id, player);   
+        player = new Player(id,name, ip, port, MaxWidth * (new Random().nextFloat()) + OFFSET, MaxHeight * (new Random().nextFloat()) + OFFSET);
+        CDC.Data.playerList.put(id, player);
+        
     }
     
     
     
     public void updateOnlinePlayer(){
         String list = "list\t";
-        int playerCount = Server.playerList.size();
+        int playerCount = CDC.Data.playerList.size();
         
         ArrayList<Integer[]> rlist = new ArrayList();
         
         int count = 0;
-        for(Integer i : Server.playerList.keySet()){
+        for(Integer i : CDC.Data.playerList.keySet()){
             if(count++>= playerCount)break;
-            Player  pp = Server.playerList.get(i);
+            Player  pp = CDC.Data.playerList.get(i);
             if(pp.getStatus()<2){
                 Integer temp[] = new Integer[2];
                 temp[0] = pp.getID();
@@ -101,7 +102,7 @@ public final class User implements Runnable {
         for(int i=0; i<rlist.size(); i++){
             int tempID = rlist.get(i)[0];
             list += tempID+"\t";
-            list += Server.playerList.get(tempID).getName()+"\t";
+            list += CDC.Data.playerList.get(tempID).getName()+"\t";
         }
         
         writer.println(list);
@@ -113,19 +114,20 @@ public final class User implements Runnable {
     
     public void deadAction(){
         writer.println("die");
-        Object obj[] = {this.id,this.name,player.getAge()};
-        Server.recordList.add(obj);
+        Object obj[] = {this.id,this.name,CDC.Data.playerList.get(id).getAge()};
+        
+        CDC.Data.recordList.add(obj);
     }
     
-    public void wholeRankList(){
+    public void getRankList(){
         String list = "full\t";
-        ArrayList<Object[]> rlist = Server.recordList;
+        ArrayList<Object[]> rlist = CDC.Data.recordList;
         int recordCount = rlist.size();
         list += (recordCount + "\t");
         
         for(int i=0; i<recordCount; i++){
             for(int j=0; j<recordCount; j++){
-                if((Integer)rlist.get(j)[2]<(Integer)rlist.get(i)[2]){
+                if((Integer)rlist.get(j)[2]<=(Integer)rlist.get(i)[2]){
                     Object temp[] = rlist.get(i);
                     rlist.set(i,rlist.get(j));
                     rlist.set(j,temp);
@@ -147,16 +149,16 @@ public final class User implements Runnable {
     public void run() {
         String message;
         try {
-            while ((message = this.reader.readLine()) != null) {
+            while ( !sock.isClosed() && (message = this.reader.readLine()) != null) {
                 switch(message){
                     case "full" :
-                        wholeRankList();
+                        getRankList();
                         break;
                     case "restart" :
                         // send rank
-                        this.player = new Player(id,name, ip, port, PLAYER_INITIAL_WIDTH * (new Random().nextFloat()) + PLAYER_INITIAL_LEFTOFFSET, PLAYER_INITIAL_HEIGHT * (new Random().nextFloat()) + PLAYER_INITIAL_UPOFFSET);
-                        Server.playerList.put(id, player);
-                        Server.broadcastRank();
+                        this.player = new Player(id,name, ip, port, MaxWidth * (new Random().nextFloat()) + OFFSET, MaxHeight * (new Random().nextFloat()) + OFFSET);
+                        CDC.Data.playerList.put(id, player);
+                        CDC.Logic.broadcastRank();
                         break;
                     case "exit" : 
                         throw new Exception();
@@ -164,20 +166,21 @@ public final class User implements Runnable {
 
             }
         } catch (Exception ex) {
-            Server.playerList.get(id).setStatus((byte)2);
-            Object x[] = {age,name};
-            Server.recordList.add(x);
-            Server.playerList.remove(id);
-            Server.userList.remove(id);
-            try {
-                writer.close();
-                reader.close();
-                sock.close();
-            } catch (IOException ex1) {
-            }
-            Server.broadcastRank();
-            System.out.println( "ID: "+ id + " Name: "+name+" Disconnect.");
+            
         }
+        CDC.Data.playerList.get(id).setStatus((byte)2);
+        Object x[] = {age,name};
+        CDC.Data.recordList.add(x);
+        CDC.Data.playerList.remove(id);
+        CDC.Data.userList.remove(id);
+        try {
+            writer.close();
+            reader.close();
+            sock.close();
+        } catch (IOException ex1) {
+        }
+        CDC.Logic.broadcastRank();
+        System.out.println( "ID: "+ id + " Name: "+name+" Disconnect.");
     }
 
 }

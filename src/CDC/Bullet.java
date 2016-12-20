@@ -1,10 +1,9 @@
-package Gamer;
+package CDC;
 
 public class Bullet {
     
     public float x;
     public float y;
-    private byte status=0;
     public final float[] velocity;
     
     public Bullet(int MAX_WIDTH_SIZE, int MAX_HEIGHT_SIZE){
@@ -24,13 +23,8 @@ public class Bullet {
         return y;
     }
     
-    public byte getStatus(){
-        return status;
+    public float[] getV(){
+        return velocity;
     }
-    
-    public void setStatus(byte status){
-        this.status = status;
-    }
-    
            
 }
