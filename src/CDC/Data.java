@@ -33,4 +33,28 @@ public class Data {
         new Thread(user).start();
     }
     
+    public static String getRankList(){
+        String list = "full\t";
+        ArrayList<Object[]> rlist;
+        rlist = Data.recordList;
+        int recordCount = rlist.size();
+        list += (recordCount + "\t");
+        
+        for(int i=0; i<recordCount; i++){
+            for(int j=0; j<recordCount; j++){
+                if((Integer)rlist.get(j)[2]<=(Integer)rlist.get(i)[2]){
+                    Object temp[] = rlist.get(i);
+                    rlist.set(i,rlist.get(j));
+                    rlist.set(j,temp);
+                }
+            }
+        }
+        for(int i=0; i<recordCount; i++){
+            list += rlist.get(i)[0]+"\t";
+            list += rlist.get(i)[1]+"\t";
+            list += rlist.get(i)[2]+"\t";
+        }
+        return list;
+    }
+    
 }

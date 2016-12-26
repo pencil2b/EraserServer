@@ -1,6 +1,7 @@
 package server;
 
-import server.Player;
+
+import CDC.Data;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,7 +10,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
-import server.Server;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class User implements Runnable {
 
@@ -24,7 +26,7 @@ public final class User implements Runnable {
     Player player;
     PrintStream writer;
     BufferedReader reader;
-    Socket sock;
+    private Socket sock;
     
 
     public User(int id, Socket cSocket, int MaxWidth, int MaxHeight) {
@@ -115,33 +117,7 @@ public final class User implements Runnable {
     public void deadAction(){
         writer.println("die");
         Object obj[] = {this.id,this.name,CDC.Data.playerList.get(id).getAge()};
-        
         CDC.Data.recordList.add(obj);
-    }
-    
-    public void getRankList(){
-        String list = "full\t";
-        ArrayList<Object[]> rlist = CDC.Data.recordList;
-        int recordCount = rlist.size();
-        list += (recordCount + "\t");
-        
-        for(int i=0; i<recordCount; i++){
-            for(int j=0; j<recordCount; j++){
-                if((Integer)rlist.get(j)[2]<=(Integer)rlist.get(i)[2]){
-                    Object temp[] = rlist.get(i);
-                    rlist.set(i,rlist.get(j));
-                    rlist.set(j,temp);
-                }
-            }
-        }
-        for(int i=0; i<recordCount; i++){
-            list += rlist.get(i)[0]+"\t";
-            list += rlist.get(i)[1]+"\t";
-            list += rlist.get(i)[2]+"\t";
-        }
-        System.out.println(list);
-        writer.println(list);
-        writer.flush();
     }
     
     
@@ -152,7 +128,9 @@ public final class User implements Runnable {
             while ( !sock.isClosed() && (message = this.reader.readLine()) != null) {
                 switch(message){
                     case "full" :
-                        getRankList();
+                        writer.println(Data.getRankList());
+                        System.out.println("HAHAHA");
+                        writer.flush();
                         break;
                     case "restart" :
                         // send rank
@@ -161,26 +139,23 @@ public final class User implements Runnable {
                         CDC.Logic.broadcastRank();
                         break;
                     case "exit" : 
-                        throw new Exception();
+                        sock.close();
+                        break;
                 }
 
             }
         } catch (Exception ex) {
-            
+            System.out.println(ex.getMessage());
         }
-        CDC.Data.playerList.get(id).setStatus((byte)2);
         Object x[] = {age,name};
         CDC.Data.recordList.add(x);
         CDC.Data.playerList.remove(id);
-        CDC.Data.userList.remove(id);
+        //CDC.Data.userList.remove(id);
         try {
-            writer.close();
-            reader.close();
-            sock.close();
-        } catch (IOException ex1) {
-        }
+            Thread.sleep(500);
+        } catch (InterruptedException ex) {}
         CDC.Logic.broadcastRank();
-        System.out.println( "ID: "+ id + " Name: "+name+" Disconnect.");
+        System.out.println( "ID: "+ id + " Name: " + name + " Disconnect.");
     }
 
 }

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class Player {
     
-    public static ArrayList<Bullet> rangeBullet;
+    public ArrayList<Bullet> rangeBullet;
     private final int SPEED=20;
     private final int id; 
     private final String name;
@@ -69,12 +69,8 @@ public class Player {
         return status;
     }
     
-    public static synchronized void  clearBullet(){
-        rangeBullet = new ArrayList<>();
-    }
-
     public  void setRangeBullet(ArrayList<Bullet> rangeBullet) {
-        Player.rangeBullet = rangeBullet;
+        this.rangeBullet = rangeBullet;
     }
 
     
