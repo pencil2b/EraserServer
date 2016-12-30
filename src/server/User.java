@@ -147,7 +147,7 @@ public final class User implements Runnable {
                         Logic.broadcastRank();
                         break;
                 }
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
             }
 
