@@ -1,8 +1,6 @@
 package server;
 
-import CDC.Data;
-import CDC.Logic;
-import CDC.Threads;
+import CDC.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,7 +22,7 @@ public class Server {
     public void establish() throws IOException {
 
         udp = new UDPSocket(port);
-        Data dd = new Data();
+        CDC.data = new Data();
         Logic logic = new Logic();
         Threads threads = new Threads();
 
@@ -32,8 +30,8 @@ public class Server {
         ServerSocket serverSock = new ServerSocket(port);
         while (true) {
             Socket cSocket = serverSock.accept();
-            CDC.Data.addPlayer(count++,cSocket);
-            CDC.Logic.broadcastRank();
+            CDC.data.addPlayer(count++,cSocket);
+            Logic.broadcastRank();
         }
 
     }

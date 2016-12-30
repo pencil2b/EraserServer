@@ -47,7 +47,7 @@ public class Threads {
             public void run() {
                 while (true) {
                     try {
-                        CDC.Logic.updatePlayer(server.Server.udp.read());
+                        Logic.updatePlayer(server.Server.udp.read());
                     } catch (IOException ex) {
                     }
                 }
@@ -60,7 +60,7 @@ public class Threads {
                 while (true) {
                     try {
                         fps.adjust(120);
-                        CDC.Logic.movePlayer();
+                        Logic.movePlayer();
                     } catch (IOException ex) {
                     }
                 }
@@ -73,7 +73,7 @@ public class Threads {
                 FPS fps = new FPS();
                 while (true) {
                     fps.adjust(30);
-                    CDC.Logic.logic();
+                    Logic.logic();
                 }
             }
         };
@@ -85,7 +85,7 @@ public class Threads {
                 while (true) {
                     try {
                         fps.adjust(30);
-                        CDC.Logic.broadcast();
+                        Logic.broadcast();
                     } catch (IOException ex) {
                     }
                 }
@@ -97,7 +97,7 @@ public class Threads {
             public void run() {
                 for (int i = 0; i < Configure.MAX_AMOUNT_BULLET; i++) {
                     Bullet bb = new Bullet(Configure.MAX_WIDTH, Configure.MAX_HEIGHT);
-                    CDC.Data.bulletList.add(bb);
+                    CDC.data.bulletList.add(bb);
                 }
 
             }
@@ -109,15 +109,15 @@ public class Threads {
                 FPS fps = new FPS();
                 while (true) {
                     fps.adjust(120);
-                    int bulletSize = CDC.Data.bulletList.size();
+                    int bulletSize = CDC.data.bulletList.size();
                     for (int i = 0; i < bulletSize; i++) {
-                        Bullet b = CDC.Data.bulletList.get(i);
+                        Bullet b = CDC.data.bulletList.get(i);
                         if (b.x <= Configure.MAX_WIDTH + Configure.BULLET_OFFSET  && b.x >= -Configure.BULLET_OFFSET && b.y <= Configure.MAX_HEIGHT +Configure.BULLET_OFFSET && b.y >= -Configure.BULLET_OFFSET) {
                             b.x += b.velocity[0];
                             b.y += b.velocity[1];
                         } else {
                             b = new Bullet(Configure.MAX_WIDTH, Configure.MAX_HEIGHT);
-                            CDC.Data.bulletList.set(i, b);
+                            CDC.data.bulletList.set(i, b);
                         }
                     }
 
@@ -131,7 +131,7 @@ public class Threads {
                 FPS fps = new FPS();
                 while (true) {
                     fps.adjust(1);
-                    CDC.Data.playerList.forEach((Integer id, Player player) -> {
+                    CDC.data.playerList.forEach((Integer id, Player player) -> {
                         if (player.getStatus() < 2) {
                             player.age += 1;
                         }

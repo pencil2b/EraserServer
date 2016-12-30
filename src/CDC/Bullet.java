@@ -15,6 +15,16 @@ public class Bullet {
         
     }
 
+    public Bullet(float x, float y, float[] velocity) {
+        this.x = x;
+        this.y = y;
+        this.velocity = velocity;
+    }
+    
+    public Bullet clone(){
+        return new Bullet(this.x, this.y, this.velocity);
+    }
+    
     public float getX() {
         return x;
     }

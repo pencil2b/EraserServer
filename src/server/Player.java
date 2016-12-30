@@ -26,6 +26,18 @@ public class Player {
         udp = new UDPSocket(ip,port);
     }
 
+    public Player(int id, String name, String ip, int port, float x, float y, UDPSocket udp){
+        this.id =  id;
+        this.name = name;
+        this.x = x;
+        this.y = y;
+        this.udp = udp;
+    }
+    
+    public Player clone() {
+        return new Player(id, name, name, SPEED, x, y, udp);
+    }
+    
     public void set(float x, float y){
         this.x += x*SPEED;
         this.y += y*SPEED;

@@ -1,6 +1,6 @@
 package server;
 
-import CDC.Data;
+import CDC.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,22 +64,22 @@ public final class User implements Runnable {
         System.out.println(now.toString() + "\nIP : " + ip + "\nName : " + name + "\nStart to Connect.\n");
 
         player = new Player(id, name, ip, port, MaxWidth * (new Random().nextFloat()) + OFFSET, MaxHeight * (new Random().nextFloat()) + OFFSET);
-        CDC.Data.playerList.put(id, player);
+        CDC.data.playerList.put(id, player);
 
     }
 
     public void updateOnlinePlayer() {
         String list = "list\t";
-        int playerCount = CDC.Data.playerList.size();
+        int playerCount = CDC.data.playerList.size();
 
         ArrayList<Integer[]> rlist = new ArrayList();
 
         int count = 0;
-        for (Integer i : CDC.Data.playerList.keySet()) {
+        for (Integer i : CDC.data.playerList.keySet()) {
             if (count++ >= playerCount) {
                 break;
             }
-            Player pp = CDC.Data.playerList.get(i);
+            Player pp = CDC.data.playerList.get(i);
             if (pp.getStatus() < 2) {
                 Integer temp[] = new Integer[2];
                 temp[0] = pp.getID();
@@ -102,7 +103,7 @@ public final class User implements Runnable {
         for (int i = 0; i < rlist.size(); i++) {
             int tempID = rlist.get(i)[0];
             list += tempID + "\t";
-            list += CDC.Data.playerList.get(tempID).getName() + "\t";
+            list += CDC.data.playerList.get(tempID).getName() + "\t";
         }
 
         writer.println(list);
@@ -110,9 +111,13 @@ public final class User implements Runnable {
     }
 
     public void deadAction() {
+        ArrayList<Object[]> nr = (ArrayList<Object[]>) CDC.data.recordList.clone();
+
         writer.println("die");
-        Object obj[] = {this.id, this.name, CDC.Data.playerList.get(id).getAge()};
-        CDC.Data.recordList.add(obj);
+        Object obj[] = {this.id, this.name, CDC.data.playerList.get(id).getAge()};
+        nr.add(obj);
+
+        CDC.data.recordList = nr;
     }
 
     @Override
@@ -121,18 +126,25 @@ public final class User implements Runnable {
         while (!sock.isClosed()) {
             try {
                 message = this.reader.readLine();
-                if(message == null) {sock.close();continue;}
+                if (message == null) {
+                    sock.close();
+                    continue;
+                }
                 switch (message) {
                     case "full":
-                        writer.println(Data.getRankList());
+                        writer.println(CDC.data.getRankList());
                         System.out.println("HAHAHA");
                         writer.flush();
                         break;
                     case "restart":
                         // send rank
                         this.player = new Player(id, name, ip, port, MaxWidth * (new Random().nextFloat()) + OFFSET, MaxHeight * (new Random().nextFloat()) + OFFSET);
-                        CDC.Data.playerList.put(id, player);
-                        CDC.Logic.broadcastRank();
+                        
+                        HashMap<Integer, Player> np = (HashMap<Integer, Player>) CDC.data.playerList.clone();
+                        np.put(id, player);
+                        CDC.data.playerList = np;
+                        
+                        Logic.broadcastRank();
                         break;
                 }
             } catch (IOException ex) {
@@ -140,17 +152,25 @@ public final class User implements Runnable {
             }
 
         }
-        Object x[] = {id, name,age};
-        CDC.Data.recordList.add(x);
-        CDC.Data.playerList.remove(id);
         
+        HashMap<Integer, Player> np = (HashMap<Integer, Player>) CDC.data.playerList.clone();
+        ArrayList<Object[]> nr = (ArrayList<Object[]>) CDC.data.recordList.clone();
+        Object x[] = {id, name, age};
+        nr.add(x);
+        np.remove(id);
+        CDC.data.recordList = nr;
+        CDC.data.playerList = np;
+
         try {
             Thread.sleep(500);
         } catch (InterruptedException ex) {
         }
-        CDC.Logic.broadcastRank();
+        Logic.broadcastRank();
         System.out.println("ID: " + id + " Name: " + name + " Disconnect.");
-        CDC.Data.userList.remove(id);
+        
+        HashMap<Integer, User> nu = (HashMap<Integer, User>) CDC.data.userList.clone();
+        nu.remove(id);
+        CDC.data.userList = nu;
     }
 
 }

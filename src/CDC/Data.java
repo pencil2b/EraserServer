@@ -15,10 +15,10 @@ import java.util.HashMap;
 public class Data {
     
     
-    public static HashMap<Integer, Player> playerList;
-    public static HashMap<Integer, User> userList;
-    public static ArrayList<Bullet> bulletList;
-    public static ArrayList<Object[]> recordList;
+    public HashMap<Integer, Player> playerList;
+    public HashMap<Integer, User> userList;
+    public ArrayList<Bullet> bulletList;
+    public ArrayList<Object[]> recordList;
     
     public Data(){
         recordList = new ArrayList<>();
@@ -27,16 +27,16 @@ public class Data {
         playerList = new HashMap<>();
     }
     
-    public static void addPlayer(int count,Socket cSocket){
+    public void addPlayer(int count,Socket cSocket){
         User user = new User(count, cSocket, Configure.MAX_WIDTH, Configure.MAX_HEIGHT);
-        CDC.Data.userList.put(count, user);
+        userList.put(count, user);
         new Thread(user).start();
     }
     
-    public static String getRankList(){
+    public String getRankList(){
         String list = "full\t";
         ArrayList<Object[]> rlist;
-        rlist = Data.recordList;
+        rlist = recordList;
         int recordCount = rlist.size();
         list += (recordCount + "\t");
         

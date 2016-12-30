@@ -13,65 +13,67 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  *
  * @author Neptune
  */
 public class Logic {
-    
 
-    public static void updatePlayer(byte data[]) throws IOException{
+    public static void updatePlayer(byte data[]) throws IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(data);
         DataInputStream dis = new DataInputStream(bais);
         int id = dis.readShort();
         float x = dis.readFloat() * Configure.PLAYERSPEED;
         float y = dis.readFloat() * Configure.PLAYERSPEED;
-        CDC.Data.playerList.get(id).setXV(x);
-        CDC.Data.playerList.get(id).setYV(y);
+        CDC.data.playerList.get(id).setXV(x);
+        CDC.data.playerList.get(id).setYV(y);
 
     }
-    
+
     public static void deadAnnouncment(int id) {
-        Player pp = CDC.Data.playerList.get(id);
-        User user = CDC.Data.userList.get(id);
+        Player pp = CDC.data.playerList.get(id);
+        User user = CDC.data.userList.get(id);
         user.deadAction();
         pp.setStatus((byte) 2);
         broadcastRank();
     }
 
     public static void logic() {
-        for (Integer x : CDC.Data.playerList.keySet()) {
-            if (CDC.Data.playerList.containsKey(x)) {
-                Player pp = CDC.Data.playerList.get(x);
-                
-                    int age = pp.getAge();
-                    float px = pp.getX();
-                    float py = pp.getY();
-                    ArrayList<Bullet> temp = new ArrayList<>();
-                    int bulletCount = CDC.Data.bulletList.size();
-                    for (int i = 0; i < bulletCount; i++) {
-                        Bullet bb = CDC.Data.bulletList.get(i);
-                        double dis = Math.sqrt((px - bb.getX()) * (px - bb.getX()) + (py - bb.getY()) * (py - bb.getY()));
-                        double radius = 10 + age / 3;
-                        if(dis<radius && pp.getStatus() == 1){
-                            deadAnnouncment(pp.getID());
-                            break;
-                        }
-                        else if(dis<CDC.Configure.VISIBLE_RADIUS){
-                            temp.add(bb);
-                        }
-                    }
-                    pp.setRangeBullet(temp);
-                            
+
+        for (Integer x : CDC.data.playerList.keySet()) {
+
+            Player pp = CDC.data.playerList.get(x);
+
+            int age = pp.getAge();
+            float px = pp.getX();
+            float py = pp.getY();
+            ArrayList<Bullet> temp = new ArrayList<>();
+            int bulletCount = CDC.data.bulletList.size();
+            for (int i = 0; i < bulletCount; i++) {
+                Bullet bb = CDC.data.bulletList.get(i);
+                double dis = Math.sqrt((px - bb.getX()) * (px - bb.getX()) + (py - bb.getY()) * (py - bb.getY()));
+                double radius = 10 + age / 3;
+                if (dis < radius && pp.getStatus() == 1) {
+                    deadAnnouncment(pp.getID());
+                    break;
+                } else if (dis < Configure.VISIBLE_RADIUS) {
+                    temp.add(bb);
+                }
             }
+            pp.setRangeBullet(temp);
+
         }
     }
 
     public static void movePlayer() throws IOException {
-        if (!CDC.Data.playerList.isEmpty()) {
-            for(Integer ii:CDC.Data.playerList.keySet()){
-                Player pp = CDC.Data.playerList.get(ii);
+
+        if (!CDC.data.playerList.isEmpty()) {
+            HashMap<Integer, Player> np = (HashMap<Integer, Player>) CDC.data.playerList.clone();
+
+            for (Integer ii : np.keySet()) {
+                Player pp = np.get(ii);
 
                 byte status = pp.getStatus();
                 if (status == 0 || status == 1) {
@@ -92,26 +94,29 @@ public class Logic {
                     }
                 }
             }
+
+            CDC.data.playerList = np;
         }
 
     }
 
     public static void broadcast() throws IOException {
-        
-        if (!CDC.Data.playerList.isEmpty()) {
-            CDC.Data.playerList.keySet().stream().forEach((x) -> {
-                try{
-                    Player p = CDC.Data.playerList.get(x);
+
+        if (!CDC.data.playerList.isEmpty()) {
+            CDC.data.playerList.keySet().stream().forEach((x) -> {
+                try {
+                    Player p = CDC.data.playerList.get(x);
                     byte[] buffer = createEverything(p);
                     p.sendWorld(buffer);
-                }catch(Exception ex){}
+                } catch (Exception ex) {
+                }
             });
         }
     }
 
     public static void broadcastRank() {
-        CDC.Data.userList.keySet().stream().forEach((x) -> {
-            CDC.Data.userList.get(x).updateOnlinePlayer();
+        CDC.data.userList.keySet().stream().forEach((x) -> {
+            CDC.data.userList.get(x).updateOnlinePlayer();
         });
     }
 
@@ -119,16 +124,16 @@ public class Logic {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
 
-        int playerCount = CDC.Data.playerList.keySet().size();
+        int playerCount = CDC.data.playerList.keySet().size();
         int bulletCount = p.rangeBullet.size();
 
         dos.writeShort(playerCount);
         dos.writeShort(bulletCount);
 
         if (playerCount > 0) {
-            for (Integer x : CDC.Data.playerList.keySet()) {
-                if (CDC.Data.playerList.containsKey(x)) {
-                    Player pp = CDC.Data.playerList.get(x);
+            for (Integer x : CDC.data.playerList.keySet()) {
+                if (CDC.data.playerList.containsKey(x)) {
+                    Player pp = CDC.data.playerList.get(x);
                     dos.writeShort(pp.getID());
                     dos.writeFloat(pp.getX());
                     dos.writeFloat(pp.getY());
@@ -148,7 +153,7 @@ public class Logic {
                 dos.writeFloat(x[1]);
             }
         }
-        
+
         return baos.toByteArray();
     }
 
