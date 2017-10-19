@@ -73,7 +73,7 @@ public class Logic {
             HashMap<Integer, Player> np = (HashMap<Integer, Player>) CDC.data.playerList.clone();
 
             for (Integer ii : np.keySet()) {
-                Player pp = np.get(ii);
+                Player pp = np.get(ii); 
 
                 byte status = pp.getStatus();
                 if (status == 0 || status == 1) {
